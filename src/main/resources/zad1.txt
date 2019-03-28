@@ -1,0 +1,26 @@
+1. mkdir ROVKP_DZ1
+
+# format naredbe u hdfsu:
+# hdfs [SHELL_OPTIONS] COMMAND [GENERIC_OPTIONS] [COMMAND_OPTIONS]
+# dfs -> naredbe datotečnog sustava (distributed file system)
+# fsck -> dijagnostika datotečnog sustava (file system check)
+2. start-dfs.sh
+
+3. prikaz mape /user/rovkp
+	hdfs dfs -ls /user/rovkp
+4. Dohvat gutenberg.zip
+	wget https://gitlab.tel.fer.hr/gutenberg.zip
+5. Prijenos gutenberg.zip na hdfs
+	hdfs dfs -copyFromLocal gutenberg.zip /user/rovkp
+6. Prikaz dijagnostičkih podataka datoteke gutenberg.zip na HDFS-u.
+	hdfs fsck /user/rovkp/gutenberg.zip
+	a)Broj blokova datoteke: 2
+	b)Replikacijski faktor blokova: 1
+	c)Nije, zato što datoteka ima samo 158,8 MB. HDFS je dobar za datoteke reda veličine desetaka GB.
+7. Sigurnosna kopija na lokalnom datotečnom sustavu
+	cp gutenberg.zip gutenberg1.zip
+8. Kopiranje datoteke na lokalni datotečni sustav grozda
+	hdfs dfs -copyToLocal /user/rovkp/gutenberg.zip <destination>
+9. Provjera je li preuzeta kopija arhive jednaka originalu
+	md5sum gutenberg*
+ 
