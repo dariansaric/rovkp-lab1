@@ -1,10 +1,12 @@
 package nio;
 
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,6 +31,7 @@ public class GutenbergVisitor extends SimpleFileVisitor<Path> {
      * Broj procitanih redaka tijekom obilaska
      */
     private int noLinesRead = 0;
+    private List<String> lines = new LinkedList<>();
 
     /**
      * Konstruktor.
@@ -39,6 +42,9 @@ public class GutenbergVisitor extends SimpleFileVisitor<Path> {
         this.startDir = Objects.requireNonNull(startDir);
     }
 
+    public List<String> getLines() {
+        return lines;
+    }
 
     /**
      * @return {@link #startDir}
@@ -76,25 +82,9 @@ public class GutenbergVisitor extends SimpleFileVisitor<Path> {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         System.out.println(String.format("Obradujem datoteku %s", file));
-//        List<String> lines = new LinkedList<>();
-//        noBooksRead++;
-//        try(BufferedReader reader = Files.newBufferedReader(file)) {
-//            String l = reader.readLine();
-//            noLinesRead++;
-//            lines.add(l);
-//        }
-        List<String> lines = Files.readAllLines(file, StandardCharsets.ISO_8859_1);
+        lines.addAll(Files.readAllLines(file, StandardCharsets.ISO_8859_1));
         noBooksRead++;
         noLinesRead += lines.size();
-
-        try (BufferedWriter writer = Files.newBufferedWriter(GUTENBERG_BOOKS_PATH, StandardCharsets.UTF_8)) {
-            for (String l : lines) {
-                if (!l.isEmpty()) {
-                    writer.write(l);
-                    writer.newLine();
-                }
-            }
-        }
 
         return FileVisitResult.CONTINUE;
     }
@@ -103,8 +93,17 @@ public class GutenbergVisitor extends SimpleFileVisitor<Path> {
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
         System.out.println(String.format("Obraden direktorij %s", dir));
 
-        if(dir.equals(startDir)) {
+        if (dir.equals(startDir)) {
             System.out.println("Broj procitanih knjiga: " + noBooksRead + "\nBroj ucitanih redaka: " + noLinesRead);
+            System.out.println(lines.size());
+            try (BufferedWriter writer = Files.newBufferedWriter(GUTENBERG_BOOKS_PATH, StandardCharsets.UTF_8)) {
+                for (String l : lines) {
+                    if (!l.isEmpty()) {
+                        writer.write(l);
+                        writer.newLine();
+                    }
+                }
+            }
         }
         return FileVisitResult.CONTINUE;
     }

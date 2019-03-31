@@ -12,7 +12,7 @@ public class HadoopMain {
         Configuration configuration = new Configuration();
         LocalFileSystem localFileSystem = FileSystem.getLocal(configuration);
         FileSystem fileSystem = FileSystem.get(new URI("hdfs://localhost:9000"), configuration);
-        //FileSystem fileSystem = FileSystem.get(configuration);
+//        FileSystem fileSystem = FileSystem.get(configuration);
         Path localPath = new Path("./gutenberg.zip");
         Path hdfsPath = new Path("./gutenberg.zip");
 
